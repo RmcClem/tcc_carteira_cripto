@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Prototipo</title>
+
+    <link rel="stylesheet" href="styles.css">
+    
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+</head>
+<body>
+    <div class="bg-particles" id="particles"></div>
+
+    <div class="container">
+        <header class="header">
+            <h1>Prototipo TCC</h1>
+            <p>Análise de Portfólio Otimizado e Monitoramento de Oportunidades de Arbitragem</p>
+        </header>
+
+        <div class="dashboard-card" id="arbitrageOverviewCard" style="margin-bottom: 25px;">
+            <h3 class="card-title">Oportunidades de Arbitragem</h3>
+            <div class="arbitrage-prices-grid" id="arbitragePrices">
+                </div>
+        </div>
+        <div class="dashboard-grid">
+            <div class="dashboard-card">
+                <h3 class="card-title">Visão Geral</h3>
+                <div class="quick-stats">
+                    <div class="stat-item">
+                        <div class="value" id="overview-return">--</div>
+                        <div class="label">Retorno Anualizado</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="value" id="overview-volatility">--</div>
+                        <div class="label">Volatilidade</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="value" id="overview-sharpe">--</div>
+                        <div class="label">Sharpe Ratio</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="value" id="overview-arbitrage-alerts">--</div>
+                        <div class="label">Alertas Ativos</div>
+                    </div>
+                </div>
+            </div>
+        
+            <div class="dashboard-card">
+                <h3 class="card-title">Configurações</h3>
+                <form id="portfolioConfigForm">
+                    <label for="coinSearch">Adicionar Criptomoeda:</label>
+                    <div class="coin-search-container">
+                        <input type="text" id="coinSearch" placeholder="Ex: BTC, ETH, XRP...">
+                        <button type="button" id="addCoinButton">✓</button>
+                    </div>
+
+                    <label for="tickers">Criptomoedas Selecionadas:</label>
+                    <select id="tickers" multiple size="5" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.2); background: rgba(0, 0, 0, 0.3); color: #ffffff; font-size: 1em; outline: none; transition: border-color 0.3s;">
+                    </select>
+
+                    <label for="start_date">Data de Início:</label>
+                    <input type="date" id="start_date" value="2023-05-01" required>
+
+                    <label for="end_date">Data de Fim:</label>
+                    <input type="date" id="end_date" value="2024-05-01" required>
+                    
+                    <div id="riskFreeRateSection" class="hidden"> <label for="risk_free_rate">Taxa Livre de Risco:</label>
+                        <input type="text" id="risk_free_rate" value="4.64" required>
+                    </div>
+                    
+                    <label for="objective">Objetivo de Otimização:</label>
+                    <select id="objective" required>
+                        <option value="sharpe">Maximizar Sharpe Ratio</option>
+                        <option value="min_volatility">Minimizar Volatilidade</option>
+                    </select>
+
+                    <button type="submit">Otimizar Portfólio</button>
+                </form>
+            </div>
+            
+            <div class="dashboard-card" style="grid-column: span 2;">
+                <h3 class="card-title">Alocação de pesos</h3>
+                <div class="chart-container">
+                    <canvas id="allocationChart"></canvas>
+                </div>
+            </div>
+
+            <div class="dashboard-card" style="grid-column: span 2;">
+                <h3 class="card-title">Portfólio Otimizado</h3>
+                <div style="overflow-x: auto;">
+                    <table id="portfolioTable">
+                        <thead>
+                            <tr>
+                                <th>Ativo</th>
+                                <th>Peso</th>
+                                <th>Retorno Anual</th>
+                                <th>Volatilidade</th>
+                                <th>Sharpe Ratio</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="dashboard-card hidden" id="metricsCard"> <h3 class="card-title">Métricas de Performance</h3>
+                <div style="overflow-x: auto;">
+                    <table id="metricsTable">
+                        <thead>
+                            <tr>
+                                <th>Métrica</th>
+                                <th>Valor</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Retorno Anualizado</td><td id="metric-annual-return">--</td></tr>
+                            <tr><td>Volatilidade Anualizada</td><td id="metric-annual-volatility">--</td></tr>
+                            <tr><td>Sharpe Ratio</td><td id="metric-sharpe-ratio">--</td></tr>
+                            <tr><td>Max Drawdown</td><td id="metric-max-drawdown">--</td></tr>
+                            <tr><td>Calmar Ratio</td><td id="metric-calmar-ratio">--</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="dashboard-card" style="grid-column: span 2;" id="efficientFrontierCard"> <h3 class="card-title">Fronteira Eficiente</h3>
+                <div class="chart-container">
+                    <canvas id="efficientFrontierChart"></canvas>
+                </div>
+            </div>
+
+            <div class="dashboard-card" style="grid-column: 1 / -1;">
+                <h3 class="card-title">Performance da Carteira (Backtesting)</h3>
+                <div class="chart-container">
+                    <canvas id="backtestChart"></canvas>
+                </div>
+            </div>
+
+            </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2025 Prototipo TCC | Rafael Clem & Vinicius Henrique</p>
+    </footer>
+    <script src="script.js"></script>
+</body>
+</html>
